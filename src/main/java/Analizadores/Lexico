@@ -1,0 +1,36 @@
+package Analizadores;
+import java_cup.runtime.Symbol;
+%%
+%class Lexico
+%public
+%line
+%char
+%unicode
+%cup
+%ignorecase
+%init{
+    yyline=1;
+    yychar=1;
+
+%init}
+L=[a-zA-Z_]+
+D=[0-9]+
+espace=[ ]+
+tab=[\t]+
+ret=[\r]+
+line=[\n]+
+dec=[0-9]+("."[0-9]+)?
+COMLINE=([\/]+.*\n\r)|([\/]+.*\n)|([\/]+.*\r)
+COMMULTILINE=[<][!](.|[\\w]|[\n\r])+[!][>]
+
+
+
+%%
+"CONJ"      {return new Symbol(sym.PR_CONJ,yyline,yychar,yytext());}
+"->"        {return new Symbol(sym.PR_ASIG,yyline,yychar,yytext());}
+{D}         {return new Symbol(sym.PR_NUMERO,yyline,yychar,yytext());}
+{dec}       {return new Symbol(sym.PR_DECIMAL,yyline,yychar,yytext());}
+"%%"        {/*Ignore*/}
+{espace}    {/*Ignore*/}
+{tab}       {/*Ignore*/}
+{ret}       {/*Ignore*/}
