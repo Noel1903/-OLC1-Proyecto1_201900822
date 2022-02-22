@@ -6,4 +6,49 @@ parser code {:
     public void syntax_error(Symbol s){
         System.out.println("Unexpected token: "+s.value);
     }
-}
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+        System.out.println("Fatal error, unexcepted token: "+s.value);
+    }
+
+    public void myFunction(){
+    //......
+    }
+:}
+
+terminal String PR_CONJ,PR_ASIG,PR_DOPOINT,PR_ENDLINE,PR_REGEX,PR_SEPARADOR,PR_LEXEMA;
+terminal String PR_VAR,PR_RANGECONJ,PR_PARENTESIS_A,PR_PARENTESIS_C;
+non terminal inicio,conjuntos,conjunto,expresiones,expresion,lexemas,lexema,expresionRegular,nombreLex;
+
+start with inicio;
+ inicio::= PR_PARENTESIS_A conjuntos expresiones PR_SEPARADOR PR_SEPARADOR lexemas PR_PARENTESIS_C
+ ;
+
+conjuntos::=conjuntos conjunto
+|conjunto 
+;
+
+conjunto::= PR_CONJ PR_DOPOINT PR_VAR PR_ASIG PR_RANGECONJ PR_ENDLINE;
+
+
+expresiones::= expresiones expresion
+|expresion;
+
+expresion::= PR_VAR PR_ASIG expresionRegular PR_ENDLINE
+;
+
+expresionRegular::= PR_REGEX  expresionRegular
+|PR_LEXEMA expresionRegular
+|PR_PARENTESIS_A nombreLex PR_PARENTESIS_C expresionRegular
+|PR_PARENTESIS_A nombreLex PR_PARENTESIS_C PR_REGEX
+|PR_PARENTESIS_A nombreLex PR_PARENTESIS_C
+;
+
+
+nombreLex ::= PR_VAR
+;
+
+lexemas::= lexemas lexema
+|lexema;
+
+lexema::= PR_VAR PR_DOPOINT PR_LEXEMA PR_ENDLINE;
+

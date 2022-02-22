@@ -20,17 +20,34 @@ tab=[\t]+
 ret=[\r]+
 line=[\n]+
 dec=[0-9]+("."[0-9]+)?
-COMLINE=([\/]+.*\n\r)|([\/]+.*\n)|([\/]+.*\r)
+COMLINE=([\/]+.*\n*\r*)|([\/]+.*\n*)|([\/]+.*\r*)
 COMMULTILINE=[<][!](.|[\\w]|[\n\r])+[!][>]
-
-
+VARIABLES=[a-zA-Z0-9_]+
+RANGE_CONJ=[a-zA-Z0-9!-&_]+~[a-zA-Z0-9!-&]+
+REGEX=[\.\|\*\+\?\\n\"\']
+LEXEMA=\".*\"
 
 %%
-"CONJ"      {return new Symbol(sym.PR_CONJ,yyline,yychar,yytext());}
-"->"        {return new Symbol(sym.PR_ASIG,yyline,yychar,yytext());}
-{D}         {return new Symbol(sym.PR_NUMERO,yyline,yychar,yytext());}
-{dec}       {return new Symbol(sym.PR_DECIMAL,yyline,yychar,yytext());}
-"%%"        {/*Ignore*/}
-{espace}    {/*Ignore*/}
-{tab}       {/*Ignore*/}
-{ret}       {/*Ignore*/}
+"CONJ"          {return new Symbol(sym.PR_CONJ,yyline,yychar,yytext());}
+"->"            {return new Symbol(sym.PR_ASIG,yyline,yychar,yytext());}
+{COMLINE}       {/*Ignore*/}
+{COMMULTILINE}  {/*Ignore*/}
+{D}             {return new Symbol(sym.PR_NUMERO,yyline,yychar,yytext());}
+{dec}           {return new Symbol(sym.PR_DECIMAL,yyline,yychar,yytext());}
+";"             {return new Symbol(sym.PR_ENDLINE,yyline,yychar,yytext());}
+":"             {return new Symbol(sym.PR_DOPOINT,yyline,yychar,yytext());}
+{VARIABLES}     {return new Symbol(sym.PR_VAR,yyline,yychar,yytext());}
+{RANGE_CONJ}    {return new Symbol(sym.PR_RANGECONJ,yyline,yychar,yytext());}
+{REGEX}         {return new Symbol(sym.PR_REGEX,yyline,yychar,yytext());}
+{LEXEMA}        {return new Symbol(sym.PR_LEXEMA,yyline,yychar,yytext());}
+"{"             {return new Symbol(sym.PR_PARENTESIS_A,yyline,yychar,yytext());}
+"}"             {return new Symbol(sym.PR_PARENTESIS_C,yyline,yychar,yytext());}
+"%%"            {return new Symbol(sym.PR_SEPARADOR,yyline,yychar,yytext());}
+{espace}        {/*Ignore*/}
+{tab}           {/*Ignore*/}
+{ret}           {/*Ignore*/}
+{line}           {/*Ignore*/}
+
+. {
+    System.out.println("Este es un error lexico: "+yytext()+" en linea "+yyline+" y columna "+yychar);
+}
