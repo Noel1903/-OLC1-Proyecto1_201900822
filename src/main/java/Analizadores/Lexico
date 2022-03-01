@@ -24,7 +24,11 @@ COMLINE=([\/]+.*\n*\r*)|([\/]+.*\n*)|([\/]+.*\r*)
 COMMULTILINE=[<][!](.|[\\w]|[\n\r])+[!][>]
 VARIABLES=[a-zA-Z0-9_]+
 RANGE_CONJ=[a-zA-Z0-9!-&_]+~[a-zA-Z0-9!-&]+
-REGEX=[\.\|\*\+\?\\n\"\']
+OR=[\|]
+AND=[\.]
+PLUS=[\+]
+QUEST=[\?]
+MULT=[\*]
 LEXEMA=\".*\"
 
 %%
@@ -38,11 +42,15 @@ LEXEMA=\".*\"
 ":"             {return new Symbol(sym.PR_DOPOINT,yyline,yychar,yytext());}
 {VARIABLES}     {return new Symbol(sym.PR_VAR,yyline,yychar,yytext());}
 {RANGE_CONJ}    {return new Symbol(sym.PR_RANGECONJ,yyline,yychar,yytext());}
-{REGEX}         {return new Symbol(sym.PR_REGEX,yyline,yychar,yytext());}
 {LEXEMA}        {return new Symbol(sym.PR_LEXEMA,yyline,yychar,yytext());}
 "{"             {return new Symbol(sym.PR_PARENTESIS_A,yyline,yychar,yytext());}
 "}"             {return new Symbol(sym.PR_PARENTESIS_C,yyline,yychar,yytext());}
 "%%"            {return new Symbol(sym.PR_SEPARADOR,yyline,yychar,yytext());}
+{OR}            {return new Symbol(sym.PR_OR,yyline,yychar,yytext());}
+{AND}           {return new Symbol(sym.PR_AND,yyline,yychar,yytext());}
+{PLUS}          {return new Symbol(sym.PR_PLUS,yyline,yychar,yytext());}
+{QUEST}         {return new Symbol(sym.PR_QUEST,yyline,yychar,yytext());}
+{MULT}          {return new Symbol(sym.PR_MULT,yyline,yychar,yytext());}
 {espace}        {/*Ignore*/}
 {tab}           {/*Ignore*/}
 {ret}           {/*Ignore*/}

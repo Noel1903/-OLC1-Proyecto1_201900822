@@ -1,7 +1,10 @@
 package Analizadores;
 import java_cup.runtime.*;
+import java.util.Map;
+
 
 parser code {:
+    Arboles arboles=new Arboles();
     //funcion de recuperacion de errores
     public void syntax_error(Symbol s){
         System.out.println("Unexpected token: "+s.value);
@@ -12,40 +15,105 @@ parser code {:
 
     public void myFunction(){
     //......
+        
     }
 :}
 
-terminal String PR_CONJ,PR_ASIG,PR_DOPOINT,PR_ENDLINE,PR_REGEX,PR_SEPARADOR,PR_LEXEMA;
+terminal String PR_CONJ,PR_ASIG,PR_DOPOINT,PR_ENDLINE,PR_SEPARADOR,PR_LEXEMA;
 terminal String PR_VAR,PR_RANGECONJ,PR_PARENTESIS_A,PR_PARENTESIS_C;
-non terminal inicio,conjuntos,conjunto,expresiones,expresion,lexemas,lexema,expresionRegular,nombreLex;
+terminal String PR_OR,PR_AND,PR_PLUS,PR_QUEST,PR_MULT;
+non terminal inicio,conjuntos,conjunto,expresiones,expresion,lexemas,lexema,expresionRegular;
 
 start with inicio;
  inicio::= PR_PARENTESIS_A conjuntos expresiones PR_SEPARADOR PR_SEPARADOR lexemas PR_PARENTESIS_C
+{:
+    
+    arboles.mostrar();
+:}
  ;
 
-conjuntos::=conjuntos conjunto
-|conjunto 
+conjuntos::=conjuntos conjunto{:
+
+:}
+|conjunto{:
+
+:} 
 ;
 
-conjunto::= PR_CONJ PR_DOPOINT PR_VAR PR_ASIG PR_RANGECONJ PR_ENDLINE;
+conjunto::= PR_CONJ PR_DOPOINT PR_VAR:nombreConj PR_ASIG PR_RANGECONJ:lexConj PR_ENDLINE
+{:  
+    tokens.tk.put(nombreConj,lexConj);
+:}
+;
 
 
-expresiones::= expresiones expresion
+expresiones::= expresiones expresion {:
+
+:}
 |expresion;
 
-expresion::= PR_VAR PR_ASIG expresionRegular PR_ENDLINE
+expresion::= PR_VAR:nombRegex PR_ASIG expresionRegular:regex PR_ENDLINE{:
+    
+    arboles.insertar((String)nombRegex,(NodoArbol)regex);
+:}
 ;
 
-expresionRegular::= PR_REGEX  expresionRegular
-|PR_LEXEMA expresionRegular
-|PR_PARENTESIS_A nombreLex PR_PARENTESIS_C expresionRegular
-|PR_PARENTESIS_A nombreLex PR_PARENTESIS_C PR_REGEX
-|PR_PARENTESIS_A nombreLex PR_PARENTESIS_C
-;
+expresionRegular::= PR_OR expresionRegular:regex expresionRegular:reg{:
+    boolean anulable=true;
+    if(((NodoArbol)regex).getAnulable()|((NodoArbol)reg).getAnulable()){
+        anulable=true;
+    }else{
+        anulable=false;
+    }
+    NodoArbol nodo=new NodoArbol("|",anulable,0, 0);
+    nodo.setIzq((NodoArbol)regex);
+    nodo.setDer(((NodoArbol)reg));
+    RESULT=nodo;
+    
+:}
+|PR_AND  expresionRegular:regex expresionRegular:reg{:
+    boolean anulable=true;
+    if(((NodoArbol)regex).getAnulable()& ((NodoArbol)reg).getAnulable()){
+        anulable=true;
+    }else{
+        anulable=false;
+    }
+    NodoArbol nodo=new NodoArbol(".",anulable,0, 0);
+    nodo.setIzq(((NodoArbol)regex));
+    nodo.setDer(((NodoArbol)reg));
+    RESULT=nodo;
+
+:}
+|PR_PLUS  expresionRegular:regex{:
+    boolean anulable=((NodoArbol)regex).getAnulable();
+    NodoArbol nodo=new NodoArbol("+",anulable,0, 0);
+    nodo.setIzq(((NodoArbol)regex));
+    RESULT=nodo;
+:}
+|PR_QUEST  expresionRegular:regex{:
+
+    NodoArbol nodo=new NodoArbol("?",true,0, 0);
+    nodo.setIzq(((NodoArbol)regex));
+    RESULT=nodo;
+:}
+|PR_MULT  expresionRegular:regex{:
+   
+    NodoArbol nodo=new NodoArbol("*",true,0, 0);
+    nodo.setIzq(((NodoArbol)regex));
+    RESULT=nodo;
+:}
+|PR_PARENTESIS_A PR_VAR:nombreConj PR_PARENTESIS_C{:
+    NodoArbol nodo=new NodoArbol(nombreConj,false,0, 0);
+    RESULT=nodo;
+:}
+|PR_LEXEMA:lexema{:
+    NodoArbol nodo=new NodoArbol(lexema,false,0, 0);
+    RESULT=nodo;
+:}
+ ;
 
 
-nombreLex ::= PR_VAR
-;
+
 
 lexemas::= lexemas lexema
 |lexema;

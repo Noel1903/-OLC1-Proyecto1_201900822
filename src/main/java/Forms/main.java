@@ -4,15 +4,18 @@
  */
 package Forms;
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Scanner;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import Analizadores.Sintactico;
 import Analizadores.Lexico;
+import Analizadores.tokens;
+import Analizadores.Arbol;
 import java.io.StringReader;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,6 +82,11 @@ public class main extends javax.swing.JFrame {
         });
 
         jButton2.setText("Generar Automatas");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jButton3.setText("<");
@@ -248,6 +256,13 @@ public class main extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         
+        
+        
+       
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
         String texto=jTextArea1.getText();
         Sintactico parser =new Sintactico(new Lexico(new StringReader(texto)));
         try {
@@ -255,8 +270,12 @@ public class main extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        for(Map.Entry<String,String>entry:tokens.tk.entrySet()){
+            System.out.println("Clave: "+entry.getKey()+" Valor: "+entry.getValue());
+        }
         System.out.println("Analisis exitoso");
-    }//GEN-LAST:event_jButton1ActionPerformed
+        
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
